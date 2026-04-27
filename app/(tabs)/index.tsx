@@ -1,3 +1,4 @@
+import { router } from 'expo-router'
 import { useState } from 'react'
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { createSession } from '../../lib/createSession'
@@ -20,18 +21,18 @@ export default function HomeScreen() {
   const [filter, setFilter] = useState('all')
   const [gameStarted, setGameStarted] = useState(false)
 
-async function handleGenerate() {
-  setLoading(true)
-  try {
-    const generated = await generateHuntItems(campus, city)
-    await createSession(campus, city, generated)
-    setItems(generated)
-    setGameStarted(true)
-  } catch (e) {
-    console.error(e)
+  async function handleGenerate() {
+    setLoading(true)
+    try {
+      const generated = await generateHuntItems(campus, city)
+      await createSession(campus, city, generated)
+      setItems(generated)
+      setGameStarted(true)
+    } catch (e) {
+      console.error(e)
+    }
+    setLoading(false)
   }
-  setLoading(false)
-}
 
   const filtered = filter === 'all' ? items : items.filter(i => i.category === filter)
 
@@ -40,7 +41,6 @@ async function handleGenerate() {
       <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 60 }}>
         <Text style={{ fontSize: 32, fontWeight: 'bold', marginBottom: 8 }}>🎯 Campus Hunt</Text>
         <Text style={{ fontSize: 16, color: '#666', marginBottom: 32 }}>AI-powered scavenger hunt</Text>
-
         <TextInput
           placeholder="Campus name (e.g. VCU)"
           value={campus}
@@ -53,7 +53,6 @@ async function handleGenerate() {
           onChangeText={setCity}
           style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 12, padding: 14, marginBottom: 24, fontSize: 16 }}
         />
-
         {loading
           ? <ActivityIndicator size="large" color="#4A90E2" />
           : <TouchableOpacity
@@ -90,15 +89,24 @@ async function handleGenerate() {
 
       <ScrollView contentContainerStyle={{ padding: 24, gap: 12 }}>
         {filtered.map((item, index) => (
-          <View key={index} style={{
-            backgroundColor: 'white', borderRadius: 16, padding: 16,
-            shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2
-          }}>
+          <TouchableOpacity key={index} onPress={() => router.push({
+            pathname: '/(tabs)/camera',
+            params: {
+              name: item.name,
+              description: item.description,
+              category: item.category,
+              is_rare: String(item.is_rare),
+              point_value: String(item.point_value),
+            }
+          })}
+            style={{
+              backgroundColor: 'white', borderRadius: 16, padding: 16,
+              shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2
+            }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Text style={{ fontSize: 16, fontWeight: 'bold', flex: 1, marginRight: 8 }}>{item.name}</Text>
               <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#4A90E2' }}>{item.point_value}pts</Text>
             </View>
-
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, gap: 8 }}>
               <View style={{ backgroundColor: CATEGORY_COLORS[item.category] + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
                 <Text style={{ color: CATEGORY_COLORS[item.category], fontSize: 12, fontWeight: '600', textTransform: 'capitalize' }}>
@@ -111,16 +119,15 @@ async function handleGenerate() {
                 </View>
               )}
             </View>
-
             <Text style={{ color: '#666', marginTop: 8, lineHeight: 20 }}>{item.description}</Text>
-          </View>
+            <Text style={{ color: '#4A90E2', marginTop: 8, fontSize: 13, fontWeight: '600' }}>Tap to photograph →</Text>
+          </TouchableOpacity>
         ))}
 
-              <View style={{ marginTop: 24, padding: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 8 }}>🏆 Leaderboard</Text>
-              <Text style={{ color: '#666' }}>Points will appear here as items are captured</Text>
-            </View>
-
+        <View style={{ marginTop: 24, padding: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 8 }}>🏆 Leaderboard</Text>
+          <Text style={{ color: '#666' }}>Points will appear here as items are captured</Text>
+        </View>
       </ScrollView>
     </View>
   )

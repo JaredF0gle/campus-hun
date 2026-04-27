@@ -1,18 +1,20 @@
 import { CameraView, useCameraPermissions } from 'expo-camera'
+import { useLocalSearchParams } from 'expo-router'
 import { useRef, useState } from 'react'
 import { ActivityIndicator, Button, Text, TouchableOpacity, View } from 'react-native'
 import { checkGeofence } from '../../lib/geofence'
 import { verifyPhoto } from '../../lib/verifyPhoto'
 
-const TEST_ITEM = {
-  name: 'Any Plant or Tree',
-  description: 'Photograph any plant, flower, or tree you can find nearby',
-  category: 'plant',
-  lat: null,
-  lng: null,
-}
-
 export default function CameraScreen() {
+  const params = useLocalSearchParams()
+  const item = {
+    name: (params.name as string) || 'Any Plant or Tree',
+    description: (params.description as string) || 'Photograph any plant, flower, or tree you can find nearby',
+    category: (params.category as string) || 'plant',
+    lat: params.lat ? parseFloat(params.lat as string) : null,
+    lng: params.lng ? parseFloat(params.lng as string) : null,
+  }
+
   const [permission, requestPermission] = useCameraPermissions()
   const [capturing, setCapturing] = useState(false)
   const [result, setResult] = useState<any>(null)
@@ -41,10 +43,10 @@ export default function CameraScreen() {
     setGeofenceStatus(null)
 
     try {
-      if (TEST_ITEM.category === 'business' && TEST_ITEM.lat && TEST_ITEM.lng) {
-        const geo = await checkGeofence(TEST_ITEM.lat, TEST_ITEM.lng)
+      if (item.category === 'business' && item.lat && item.lng) {
+        const geo = await checkGeofence(item.lat, item.lng)
         if (!geo.inRange) {
-          setGeofenceStatus(`You are ${geo.distance}m away. Get within 100m of ${TEST_ITEM.name} to submit.`)
+          setGeofenceStatus(`You are ${geo.distance}m away. Get within 100m of ${item.name} to submit.`)
           setCapturing(false)
           return
         }
@@ -52,7 +54,7 @@ export default function CameraScreen() {
 
       const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.5 })
       if (photo?.base64) {
-        const verification = await verifyPhoto(photo.base64, TEST_ITEM.name, TEST_ITEM.description)
+        const verification = await verifyPhoto(photo.base64, item.name, item.description, item.category)
         setResult(verification)
       }
     } catch (e: any) {
@@ -68,9 +70,9 @@ export default function CameraScreen() {
         <View style={{ flex: 1, justifyContent: 'flex-end', padding: 32 }}>
 
           <View style={{ backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 12, padding: 16, marginBottom: 24 }}>
-            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>{TEST_ITEM.name}</Text>
-            <Text style={{ color: '#ccc', marginTop: 4, fontSize: 13 }}>{TEST_ITEM.description}</Text>
-            {TEST_ITEM.category === 'business' && (
+            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>{item.name}</Text>
+            <Text style={{ color: '#ccc', marginTop: 4, fontSize: 13 }}>{item.description}</Text>
+            {item.category === 'business' && (
               <View style={{ backgroundColor: '#E67E22', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, marginTop: 8, alignSelf: 'flex-start' }}>
                 <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>📍 Must be within 100m</Text>
               </View>
