@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { createSession } from '../../lib/createSession'
 import { generateHuntItems } from '../../lib/generateItems'
 
 const CATEGORIES = ['all', 'campus', 'business', 'monument', 'plant']
@@ -19,17 +20,18 @@ export default function HomeScreen() {
   const [filter, setFilter] = useState('all')
   const [gameStarted, setGameStarted] = useState(false)
 
-  async function handleGenerate() {
-    setLoading(true)
-    try {
-      const generated = await generateHuntItems(campus, city)
-      setItems(generated)
-      setGameStarted(true)
-    } catch (e) {
-      console.error(e)
-    }
-    setLoading(false)
+async function handleGenerate() {
+  setLoading(true)
+  try {
+    const generated = await generateHuntItems(campus, city)
+    await createSession(campus, city, generated)
+    setItems(generated)
+    setGameStarted(true)
+  } catch (e) {
+    console.error(e)
   }
+  setLoading(false)
+}
 
   const filtered = filter === 'all' ? items : items.filter(i => i.category === filter)
 
