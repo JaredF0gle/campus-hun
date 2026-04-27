@@ -5,11 +5,11 @@ import { checkGeofence } from '../../lib/geofence'
 import { verifyPhoto } from '../../lib/verifyPhoto'
 
 const TEST_ITEM = {
-  name: 'Starbucks London',
-  description: 'Photograph the Starbucks storefront',
-  category: 'business',
-  lat: 51.5074,
-  lng: -0.1278,
+  name: 'Any Plant or Tree',
+  description: 'Photograph any plant, flower, or tree you can find nearby',
+  category: 'plant',
+  lat: null,
+  lng: null,
 }
 
 export default function CameraScreen() {

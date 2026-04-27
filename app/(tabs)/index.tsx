@@ -115,6 +115,12 @@ async function handleGenerate() {
             <Text style={{ color: '#666', marginTop: 8, lineHeight: 20 }}>{item.description}</Text>
           </View>
         ))}
+
+              <View style={{ marginTop: 24, padding: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 8 }}>🏆 Leaderboard</Text>
+              <Text style={{ color: '#666' }}>Points will appear here as items are captured</Text>
+            </View>
+
       </ScrollView>
     </View>
   )
